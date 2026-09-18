@@ -1,238 +1,138 @@
-let comments = JSON.parse(localStorage.getItem("comments")) || [];
+const SUPABASE_URL = "https://tqnbacntxcdkugjalbos.supabase.co";
+
+const SUPABASE_KEY = "sb_publishable_ZCkYFgmP95lqZas63nErgQ_MncUPeXV";
+
+
+const supabase = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
 
 
 // SHOW COMMENTS
 
-function showComments(){
+async function showComments(){
 
-let box = document.getElementById("comments");
+    let box = document.getElementById("comments");
 
-box.innerHTML = "";
-
-
-comments.forEach((c,index)=>{
+    box.innerHTML = "";
 
 
-box.innerHTML += `
-
-<div class="comment-box">
-
-
-<h3>${c.name}</h3>
-
-
-<p>${c.message}</p>
+    let { data, error } = await supabase
+    .from("comments")
+    .select("*")
+    .order("created_at", { ascending:false });
 
 
 
-<div class="reactions">
+    if(error){
 
+        console.log(error);
 
-<button onclick="react(${index},'heart')">
+        return;
 
-❤️ ${c.reactions.heart ? 1 : 0}
-
-</button>
-
-
-<button onclick="react(${index},'laugh')">
-
-😂 ${c.reactions.laugh ? 1 : 0}
-
-</button>
-
-
-<button onclick="react(${index},'like')">
-
-👍 ${c.reactions.like ? 1 : 0}
-
-</button>
-
-
-</div>
+    }
 
 
 
-<button onclick="editComment(${index})">
-
-✏️ Edit
-
-</button>
+    data.forEach((c)=>{
 
 
+        box.innerHTML += `
 
-<button onclick="deleteComment(${index})">
+        <div class="comment-box">
 
-🗑 Delete
+            <h3>${c.name}</h3>
 
-</button>
+            <p>${c.message}</p>
 
 
+        </div>
 
-</div>
+        `;
 
-`;
 
-});
+    });
 
 
 }
+
 
 
 
 // ADD COMMENT
 
-function addComment(){
+async function addComment(){
 
 
-let name = document.getElementById("name").value;
+    let name = document.getElementById("name").value;
 
-let message = document.getElementById("message").value;
+    let message = document.getElementById("message").value;
 
 
 
-if(name.trim()=="" || message.trim()==""){
+    if(name.trim()=="" || message.trim()==""){
 
-alert("Please fill everything");
+        alert("Please fill everything");
 
-return;
+        return;
+
+    }
+
+
+
+    let { error } = await supabase
+    .from("comments")
+    .insert([
+
+        {
+
+            name:name,
+
+            message:message
+
+        }
+
+    ]);
+
+
+
+
+    if(error){
+
+        console.log(error);
+
+        alert("Error adding comment");
+
+        return;
+
+    }
+
+
+
+
+    document.getElementById("name").value = "";
+
+    document.getElementById("message").value = "";
+
+
+
+    showComments();
+
+
 
 }
 
 
 
-comments.push({
-
-name:name,
-
-message:message,
 
 
-reactions:{
-
-heart:false,
-
-laugh:false,
-
-like:false
-
-}
-
-
-});
-
-
-
-saveComments();
-
+// LOAD COMMENTS WHEN PAGE OPENS
 
 showComments();
 
 
-
-document.getElementById("name").value="";
-
-document.getElementById("message").value="";
-
-
-}
-
-
-
-
-// REACTION TOGGLE
-
-function react(index,type){
-
-
-comments[index].reactions[type] = 
-!comments[index].reactions[type];
-
-
-saveComments();
-
-
-showComments();
-
-
-}
-
-
-
-
-
-// DELETE COMMENT
-
-function deleteComment(index){
-
-
-comments.splice(index,1);
-
-
-saveComments();
-
-
-showComments();
-
-
-}
-
-
-
-
-// EDIT COMMENT
-
-function editComment(index){
-
-
-let newMessage = prompt(
-
-"Edit your comment:",
-
-comments[index].message
-
-);
-
-
-
-if(newMessage != null && newMessage.trim()!=""){
-
-
-comments[index].message = newMessage;
-
-
-saveComments();
-
-
-showComments();
-
-
-}
-
-
-}
-
-
-
-
-
-// SAVE DATA
-
-function saveComments(){
-
-
-localStorage.setItem(
-
-"comments",
-
-JSON.stringify(comments)
-
-);
-
-
-}
-
-
-
+console.log("Script loaded");
 
 showComments();
