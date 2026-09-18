@@ -5,97 +5,57 @@
 
 body {
 
-    margin: 0;
-    min-height: 100vh;
+    margin:0;
 
-    position: relative;   /* <-- add this */
+    min-height:100vh;
 
-    font-family: 'Poppins', sans-serif;
+    position:relative;
 
-    color: white;
-    text-align: center;
+    display:flex;
+  
+    flex-direction:column;
 
-    overflow-x: hidden;
+    font-family:'Poppins', sans-serif;
+
+    color:white;
+
+    text-align:center;
+
+    overflow-x:hidden;
 
 
-    background: linear-gradient(
+    background:linear-gradient(
         45deg,
         #ff9acb,
         #d900ff,
         #6a00ff
     );
 
-    background-size: 300% 300%;
 
-    animation: backgroundMove 10s infinite alternate;
+    background-size:300% 300%;
 
-}
-
-
-/* Elegant title font */
-
-h1, h2 {
-
-    font-family: 'Playfair Display', serif;
+    animation:backgroundMove 10s infinite alternate;
 
 }
 
 
 
-@keyframes backgroundMove {
+h1,h2{
 
-    0% {
-        background-position: left;
+    font-family:'Playfair Display', serif;
+
+}
+
+
+
+@keyframes backgroundMove{
+
+    0%{
+        background-position:left;
     }
 
-    100% {
-        background-position: right;
-    }
-
-}
-
-
-
-/* Page opening animation */
-
-.container {
-
-    padding: 60px 20px;
-
-    animation: fadeIn 1.5s ease;
-
-
-    background: rgba(255,255,255,0.15);
-
-    backdrop-filter: blur(10px);
-
-    margin: 40px auto;
-
-    border-radius: 30px;
-
-    width: 90%;
-
-}
-
-
-
-@keyframes fadeIn {
-
-    from {
-
-        opacity: 0;
-
-        transform: translateY(50px);
-
-    }
-
-
-    to {
-
-        opacity: 1;
-
-        transform: translateY(0);
-
+    100%{
+        background-position:right;
     }
 
 }
@@ -103,25 +63,69 @@ h1, h2 {
 
 
 
-h1 {
+.container{
 
-    font-size: 45px;
+    padding:60px 20px;
 
-    text-shadow:
-    0 0 10px white;
+    animation:fadeIn 1.5s ease;
+
+    background:rgba(255,255,255,0.15);
+
+    backdrop-filter:blur(10px);
+
+    margin:40px auto;
+
+    border-radius:30px;
+
+    width:90%;
+
+}
+
+
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(50px);
+
+    }
+
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
 
 }
 
 
 
 
-button {
+h1{
 
-    padding: 15px 30px;
+    font-size:45px;
 
-    border: none;
+    text-shadow:0 0 10px white;
 
-    border-radius: 30px;
+}
+
+
+
+
+
+button{
+
+    padding:15px 30px;
+
+    border:none;
+
+    border-radius:30px;
 
     background:white;
 
@@ -131,60 +135,64 @@ button {
 
     cursor:pointer;
 
-    transition:0.4s;
+    transition:.4s;
 
 }
 
 
 
-button:hover {
+button:hover{
 
     transform:scale(1.1);
 
-    box-shadow:
-    0 0 20px white;
+    box-shadow:0 0 20px white;
 
 }
 
 
 
-/* Gallery pictures */
 
 
-.gallery img {
+/* MAIN GALLERY */
 
-    width:260px;
-    height:220px;
+
+.gallery img{
+
+
+    width:90%;
+
+    max-width:260px;
+
+    aspect-ratio:1/1;
 
     object-fit:cover;
 
     border-radius:20px;
 
-    cursor:zoom-in;
+    cursor:pointer;
 
-    transition:0.5s;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
 
-}
-
-
-.gallery img:hover {
-
-    transform:
-    scale(1.08)
-    rotate(3deg);
-
-    box-shadow:
-    0 15px 40px rgba(0,0,0,0.4);
+    transition:.5s;
 
 }
 
 
 
-/* Floating pictures */
+.gallery img:hover{
+
+    transform:scale(1.08) rotate(3deg);
+
+}
 
 
-.float-photo {
 
+
+
+/* FLOATING PHOTOS */
+
+
+.float-photo{
 
     position:absolute;
 
@@ -194,12 +202,9 @@ button:hover {
 
     object-fit:cover;
 
-
     border-radius:50%;
 
-
-    opacity:0.5;
-
+    opacity:.5;
 
     animation:float 8s infinite;
 
@@ -207,79 +212,62 @@ button:hover {
 
 
 
-@keyframes float {
+@keyframes float{
 
 
-    0% {
+    50%{
 
-        transform:
-        translateY(0)
-        rotate(0deg);
+        transform:translateY(-80px) rotate(180deg);
 
     }
 
-
-    50% {
-
-        transform:
-        translateY(-80px)
-        rotate(180deg);
-
-    }
-
-
-    100% {
-
-        transform:
-        translateY(0)
-        rotate(360deg);
-
-    }
 
 }
 
 
 
-/* Comments */
 
 
-.comment-box {
+/* CLASS PEOPLE */
 
 
-    background:
-    rgba(255,255,255,0.25);
+.people-gallery{
 
+    display:flex;
 
-    padding:15px;
+    justify-content:center;
 
-    margin:15px;
+    align-items:flex-start;
 
-    border-radius:20px;
-
-
-    animation:
-    fadeIn 1s;
-
+    gap:80px;
 
 }
 
 
-.people-gallery {
 
-    display:grid;
+.left-column,
+.right-column{
 
-    grid-template-columns:repeat(3, 1fr);
+    display:flex;
+
+    flex-direction:column;
 
     gap:25px;
 
-    width:90%;
+}
 
-    margin:auto;
+
+
+.person{
+
+    text-align:center;
 
 }
 
 
-.people-gallery img {
+
+.people-gallery img{
+
 
     width:150px;
 
@@ -291,95 +279,20 @@ button:hover {
 
     border:3px solid #ff9acb;
 
-    transition:0.5s;
+    transition:.5s;
 
 }
+
+
 
 .person h3{
+
+
     margin-bottom:10px;
+
     color:white;
+
     text-shadow:0 0 10px #ff9acb;
-    font-size:16px;
-}
-
-
-.people-gallery img:hover {
-
-    transform:
-    scale(1.1)
-    rotate(3deg);
-
-}
-
-
-@media(max-width:600px){
-
-h1{
-    font-size:30px;
-}
-
-p{
-    font-size:16px;
-}
-
-
-.people-gallery{
-
-    grid-template-columns:repeat(2, 1fr);
-
-}
-
-
-.people-gallery img{
-
-    width:120px;
-
-    height:120px;
-
-}
-
-}
-
-
-html, body {
-    width:100%;
-    min-height:100%;
-}
-
-.comments-page{
-
-    width:90%;
-
-    margin:auto;
-
-}
-
-
-
-.comment-input{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:10px;
-
-}
-
-
-
-.comment-input input,
-.comment-input textarea{
-
-    border:none;
-
-    padding:15px;
-
-    border-radius:25px;
-
-    background:rgba(255,255,255,0.2);
-
-    color:white;
 
     font-size:16px;
 
@@ -387,86 +300,18 @@ html, body {
 
 
 
-.comment-input textarea{
-
-    height:100px;
-
-    resize:none;
-
-}
+.people-gallery img:hover{
 
 
-
-.comment-input button{
-
-    width:120px;
+    transform:scale(1.1) rotate(3deg);
 
 }
 
 
 
-.comment-box{
-
-    background:rgba(255,255,255,0.15);
-
-    backdrop-filter:blur(10px);
-
-    padding:15px;
-
-    margin:20px 0;
-
-    border-radius:20px;
-
-    text-align:left;
-
-}
 
 
-
-.comment-box h3{
-
-    margin:0;
-
-    color:#ff9acb;
-
-}
-
-
-
-.reactions{
-
-    display:flex;
-
-    gap:10px;
-
-    margin-top:10px;
-
-}
-
-
-
-.reaction-btn{
-
-    border:none;
-
-    background:rgba(255,255,255,0.2);
-
-    border-radius:20px;
-
-    padding:5px 12px;
-
-    cursor:pointer;
-
-}
-
-
-.reaction-btn.active{
-
-    background:#ff9acb;
-
-}
-
-/* Comment Page */
+/* COMMENTS */
 
 
 .comment-section{
@@ -481,15 +326,20 @@ html, body {
 
 .comment-input{
 
-    background:rgba(255,255,255,0.15);
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    background:rgba(255,255,255,.15);
 
     backdrop-filter:blur(10px);
 
     padding:20px;
 
     border-radius:25px;
-
-    margin-bottom:30px;
 
 }
 
@@ -498,17 +348,18 @@ html, body {
 .comment-input input,
 .comment-input textarea{
 
+
     width:90%;
 
-    padding:15px;
+    margin:auto;
 
-    margin:10px;
+    padding:15px;
 
     border:none;
 
     border-radius:20px;
 
-    background:rgba(255,255,255,0.25);
+    background:rgba(255,255,255,.25);
 
     color:white;
 
@@ -528,17 +379,11 @@ html, body {
 
 
 
-.comment-input button{
-
-    width:120px;
-
-}
-
-
 
 .comment-box{
 
-    background:rgba(255,255,255,0.15);
+
+    background:rgba(255,255,255,.15);
 
     backdrop-filter:blur(10px);
 
@@ -556,8 +401,6 @@ html, body {
 
 .comment-box h3{
 
-    margin:0;
-
     color:#ff9acb;
 
 }
@@ -570,6 +413,324 @@ html, body {
 
     gap:10px;
 
-    margin-top:10px;
+}
+
+
+
+.reactions button{
+
+
+    padding:8px 15px;
+
+    border-radius:20px;
+
+    background:rgba(255,255,255,.2);
+
+    color:white;
+
+    font-size:14px;
+
+}
+
+
+
+
+
+/* PHONE MODE */
+
+
+@media(max-width:600px){
+
+
+h1{
+
+    font-size:30px;
+
+}
+
+
+
+p{
+
+    font-size:16px;
+
+}
+
+
+
+.people-gallery{
+
+    gap:25px;
+
+}
+
+
+
+.people-gallery img{
+
+    width:120px;
+
+    height:120px;
+
+}
+
+
+
+.person h3{
+
+    font-size:14px;
+
+}
+
+
+
+.container{
+
+    width:95%;
+
+    padding:40px 15px;
+
+}
+
+
+}
+
+/* FULL IMAGE VIEWER */
+
+
+.image-viewer{
+
+    display:none;
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:rgba(0,0,0,0.8);
+
+    backdrop-filter:blur(8px);
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:999;
+
+}
+
+
+
+.image-viewer img{
+
+
+    max-width:90%;
+
+    max-height:85%;
+
+    border-radius:25px;
+
+
+    box-shadow:
+
+    0 0 30px #ff9acb,
+
+    0 0 60px #d900ff;
+
+
+    animation:imageZoom .4s ease;
+
+}
+
+
+
+
+.image-viewer span{
+
+
+    position:absolute;
+
+    top:20px;
+
+    right:35px;
+
+
+    font-size:50px;
+
+    color:white;
+
+    cursor:pointer;
+
+}
+
+
+
+
+@keyframes imageZoom{
+
+
+    from{
+
+        transform:scale(.5);
+
+        opacity:0;
+
+    }
+
+
+    to{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+.container{
+    flex:1;
+}
+
+footer{
+
+    padding:30px 0 20px;
+
+    text-align:center;
+
+    color:white;
+
+    font-size:12px;
+
+    text-shadow:0 0 10px #ff9acb;
+
+}
+
+.album-list{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:30px;
+
+}
+
+
+
+.album-card{
+
+background:rgba(255,255,255,.15);
+
+padding:20px;
+
+border-radius:25px;
+
+transition:.4s;
+
+}
+
+
+
+.album-card:hover{
+
+transform:scale(1.05);
+
+}
+
+
+
+.album-card img{
+
+width:100%;
+
+height:200px;
+
+object-fit:cover;
+
+border-radius:20px;
+
+}
+
+
+
+.album-card h2{
+
+color:white;
+
+}
+
+
+
+.album-list a{
+
+text-decoration:none;
+
+}
+
+
+
+@media(max-width:600px){
+
+.album-list{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+.gallery video{
+
+    width:260px;
+
+    height:220px;
+
+    object-fit:cover;
+
+    border-radius:20px;
+
+    box-shadow:0 0 20px rgba(255,255,255,.3);
+
+}
+
+.image-viewer video{
+
+    max-width:90%;
+
+    max-height:85%;
+
+    border-radius:25px;
+
+    box-shadow:
+    0 0 30px #ff9acb,
+    0 0 60px #d900ff;
+
+    animation:imageZoom .4s ease;
+
+}
+
+
+.album-video{
+
+    width:260px;
+
+    border-radius:20px;
+
+    cursor:pointer;
+
+    transition:.4s;
+
+}
+
+
+.album-video:hover{
+
+    transform:scale(1.05);
 
 }
