@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Album</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1 id="albumTitle">
+Album
+</h1>
+
+
+
+<div class="gallery" id="photos">
+
+</div>
+
+
+
+<br>
+
+
+<a href="memories.html">
+
+<button>
+← Back Albums
+</button>
+
+</a>
+
+
+</div>
+
+
+
+
+<div id="imageViewer" class="image-viewer">
+
+<span onclick="closeImage()">×</span>
+
+<img id="fullImage">
+
+</div>
+
+
+
+
+<div id="videoViewer" class="image-viewer">
+
+<span onclick="closeVideo()">×</span>
+
+<video id="fullVideo" controls></video>
+
+</div>
+
+
+
+
+<div id="videoViewer" class="image-viewer">
+
+<span onclick="closeVideo()">×</span>
+
+<video id="fullVideo" controls autoplay></video>
+
+</div>
+  
+<script>
+
+
+let album = new URLSearchParams(location.search).get("name");
+
+
+
+let data = {
+
+
+best:{
+
+title:"Our Best Days Together",
+
+photos:[
+
+"best1.jpeg",
+
+"best2.jpeg",
+
+"best3.jpeg"
+
+]
+
+},
+
+
+
+stress:{
+
+title:"The Days We Were Stressed",
+
+photos:[
+
+"stress1.jpeg",
+
+"stress2.jpeg",
+
+"stress3.jpeg"
+
+]
+
+},
+
+
+
+special:{
+
+title:"Memories We Will Never Forget",
+
+photos:[
+
+"special1.jpeg",
+
+"special2.jpeg",
+
+"special3.jpeg"
+
+]
+
+},
+
+
+
+funny:{
+
+title:"Our Funniest Moments",
+
+photos:[
+
+"funny1.jpeg",
+
+"funny2.jpeg",
+
+"funny3.jpeg"
+
+]
+
+},
+
+  
+  
+video:{
+
+title:"Our Video Memories 🎥",
+
+videos:[
+
+"video1.mp4",
+
+"video2.mp4",
+
+"video3.mp4"
+
+]
+
+},
+
+
+};
+
+
+
+
+
+document.getElementById("albumTitle").innerHTML = data[album].title;
+
+
+
+let gallery = document.getElementById("photos");
+
+
+
+
+// PHOTO ALBUM
+
+if(data[album].photos){
+
+
+data[album].photos.forEach(photo=>{
+
+
+gallery.innerHTML += `
+
+<img src="images/${album}/${photo}"
+
+onclick="openImage(this.src)">
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+// VIDEO ALBUM
+
+if(data[album].videos){
+
+data[album].videos.forEach(video=>{
+
+
+gallery.innerHTML += `
+
+<video 
+onclick="openVideo(this.querySelector('source').src)"
+class="album-video">
+
+<source src="images/${album}/${video}" type="video/mp4">
+
+</video>
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+function openImage(src){
+
+
+document.getElementById("imageViewer").style.display="flex";
+
+
+document.getElementById("fullImage").src = src;
+
+
+}
+
+
+
+
+
+function closeImage(){
+
+
+document.getElementById("imageViewer").style.display="none";
+
+
+}
+
+
+function openVideo(src){
+
+
+document.getElementById("videoViewer").style.display="flex";
+
+
+document.getElementById("fullVideo").src=src;
+
+
+}
+
+
+function closeVideo(){
+
+
+let video=document.getElementById("fullVideo");
+
+
+video.pause();
+
+video.src="";
+
+
+document.getElementById("videoViewer").style.display="none";
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
