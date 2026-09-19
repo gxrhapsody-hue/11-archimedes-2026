@@ -59,8 +59,15 @@ async function showComments(){
 
             <h3>${comment.name}</h3>
 
-
             <p>${comment.message}</p>
+
+            <button onclick="replyComment(${comment.id})">
+            💬 Reply
+            </button>
+
+            <div id="replies-${comment.id}">
+            Loading replies...
+            </div>
 
 
 
@@ -116,7 +123,16 @@ async function addComment(){
     console.log("ADD COMMENT CLICKED");
 
 
-    let name = document.getElementById("name").value;
+    let nameType = document.getElementById("nameType").value;
+
+let name = document.getElementById("name").value;
+
+
+if(nameType=="Anonymous"){
+
+name="Anonymous";
+
+}
     let message = document.getElementById("message").value;
 
 
@@ -266,3 +282,94 @@ async function likeComment(id,currentLikes){
 
 
 showComments();
+
+async function replyComment(commentId){
+
+let name = prompt("Your name:");
+
+let message = prompt("Your reply:");
+
+
+
+if(name==null || message==null){
+    return;
+}
+
+
+
+const {error}=await client
+.from("replies")
+.insert([
+
+{
+comment_id: commentId,
+name:name,
+message:message
+}
+
+]);
+
+
+
+if(error){
+
+console.log(error);
+
+return;
+
+}
+
+
+
+showComments();
+
+
+}
+
+async function loadReplies(commentId){
+
+
+const {data,error}=await client
+.from("replies")
+.select("*")
+.eq("comment_id",commentId);
+
+
+
+if(error){
+console.log(error);
+return;
+}
+
+
+
+let box=document.getElementById(
+"replies-"+commentId
+);
+
+
+
+box.innerHTML="";
+
+
+
+data.forEach(reply=>{
+
+
+box.innerHTML += `
+
+<div class="reply-box">
+
+<h4>↳ ${reply.name}</h4>
+
+<p>${reply.message}</p>
+
+</div>
+
+`;
+
+
+});
+
+
+}
