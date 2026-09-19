@@ -25,7 +25,7 @@ async function showComments(){
     box.innerHTML = "Loading comments...";
 
 
-    const {data, error} = await supabase
+    const {data, error} = await client
     .from("comments")
     .select("*")
     .order("created_at", {ascending:false});
@@ -42,8 +42,9 @@ async function showComments(){
 
     }
 
+    console.log("COMMENTS:", data);
 
-
+ 
     box.innerHTML = "";
 
 
@@ -119,6 +120,12 @@ async function addComment(){
     let message = document.getElementById("message").value;
 
 
+    if(name.trim()=="" || message.trim()==""){
+        alert("Please fill everything");
+        return;
+    }
+
+
     const {data, error} = await client
     .from("comments")
     .insert([
@@ -130,20 +137,23 @@ async function addComment(){
     .select();
 
 
-    console.log("DATA:", JSON.stringify(data, null, 2));
-    console.log("ERROR:", JSON.stringify(error, null, 2));
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
 
 
-}
-
+    if(error){
+        alert("Error posting comment");
+        return;
+    }
 
 
     document.getElementById("name").value="";
-
     document.getElementById("message").value="";
 
 
     showComments();
+
+}
 
 
 
