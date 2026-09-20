@@ -29,8 +29,7 @@ async function showComments(){
     const {data, error} = await client
     .from("comments")
     .select("*")
-    .order("created_at", {ascending:false});
-
+    .order("created_at",{ascending:false});
 
 
     if(error){
@@ -50,23 +49,19 @@ async function showComments(){
     box.innerHTML = "";
 
 
-
-    data.forEach(comment => {
-
+    for(let comment of data){
 
         box.innerHTML += `
 
         <div class="comment-box">
 
-
             <h3>${comment.name}</h3>
-
 
             <p>${comment.message}</p>
 
 
             <button onclick="replyComment(${comment.id})">
-            💬 Reply
+               Reply
             </button>
 
 
@@ -75,30 +70,21 @@ async function showComments(){
             </div>
 
 
-
             <div class="reactions">
 
 
             <button onclick="likeComment(${comment.id}, ${comment.likes || 0})">
-
-            ❤️ ${comment.likes || 0}
-
+               ${comment.likes || 0}
             </button>
-
 
 
             <button onclick="editComment(${comment.id}, '${comment.message}')">
-
-            ✏️ Edit
-
+               Edit
             </button>
 
 
-
             <button onclick="deleteComment(${comment.id})">
-
-            🗑 Delete
-
+               Delete
             </button>
 
 
@@ -110,15 +96,11 @@ async function showComments(){
         `;
 
 
-        loadReplies(comment.id);
+        await loadReplies(comment.id);
 
-
-    });
-
+    }
 
 }
-
-
 
 
 
@@ -323,51 +305,38 @@ async function editComment(id,oldMessage){
 
 async function replyComment(commentId){
 
-
     let name = prompt("Your name:");
 
     let message = prompt("Your reply:");
 
-
-
-    if(name==null || message==null){
-
+    if(!name || !message){
         return;
-
     }
 
 
-
-    const {error}=await client
+    const {data,error}=await client
     .from("replies")
     .insert([
-
         {
-
-            comment_id:commentId,
-
-            name:name,
-
-            message:message
-
+            comment_id: commentId,
+            name: name,
+            message: message
         }
+    ])
+    .select();
 
-    ]);
 
+    console.log("REPLY ADDED:", data);
+    console.log("REPLY ERROR:", error);
 
 
     if(error){
-
-        console.log("REPLY ERROR:",error);
-
+        alert(error.message);
         return;
-
     }
 
 
-
     showComments();
-
 
 }
 
@@ -388,9 +357,13 @@ async function loadReplies(commentId){
 
 
     const {data,error}=await client
-    .from("replies")
-    .select("*")
-    .eq("comment_id",commentId);
+.from("replies")
+.select("*")
+.eq("comment_id",commentId);
+
+
+console.log("REPLIES FOUND:", data);
+console.log("REPLY ERROR:", error);
 
 
 
