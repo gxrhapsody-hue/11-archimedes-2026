@@ -11,11 +11,23 @@ const client = window.supabase.createClient(
     SUPABASE_KEY
 );
 
+let myUserId = localStorage.getItem("user_id");
+
+if(!myUserId){
+
+    myUserId = crypto.randomUUID();
+
+    localStorage.setItem(
+        "user_id",
+        myUserId
+    );
+
+}
 
 console.log("Supabase connected");
 
 
-
+let likedComments = JSON.parse(localStorage.getItem("likedComments")) || [];
 
 // SHOW COMMENTS
 
@@ -51,57 +63,109 @@ async function showComments(){
 
     for(let comment of data){
 
-        box.innerHTML += `
+    box.innerHTML += `
 
-        <div class="comment-box">
+    <div class="comment-box">
 
-            <h3>${comment.name}</h3>
+        <div class="user-info">
 
-            <p>${comment.message}</p>
-
-
-            <button onclick="replyComment(${comment.id})">
-               Reply
-            </button>
+    <div class="avatar">
+        ${comment.name ? comment.name.charAt(0).toUpperCase() : "?"}
+    </div>
 
 
-            <div id="replies-${comment.id}">
-            Loading replies...
-            </div>
+    <div>
+
+        <h3>${comment.name}</h3>
+
+        <small>
+        ${timeAgo(comment.created_at)}
+        ${comment.edited ? " • ✏️ Edited" : ""}
+        </small>
+
+    </div>
+
+</div>
 
 
-            <div class="reactions">
+        <p>${comment.message}</p>
+        
+
+        
+
+        <button onclick="replyComment(${comment.id})">
+        💬 Reply
+        </button>
 
 
-            <button onclick="likeComment(${comment.id}, ${comment.likes || 0})">
-               ${comment.likes || 0}
-            </button>
+        <button 
+        id="reply-count-${comment.id}" 
+        onclick="toggleReplies(${comment.id})">
+        💬 0 replies
+        </button>
 
 
-            <button onclick="editComment(${comment.id}, '${comment.message}')">
-               Edit
-            </button>
+        <div id="replies-${comment.id}" class="replies hidden">
+        </div>
 
 
-            <button onclick="deleteComment(${comment.id})">
-               Delete
-            </button>
+
+        <div class="reactions">
 
 
-            </div>
+        <button onclick="likeComment(${comment.id})">
+        ${likedComments.includes(comment.id) ? "❤️" : "🤍"} ${comment.likes ?? 0}
+        </button>
+
+
+
+        ${
+       comment.user_id === myUserId ? `
+
+      <div class="menu-container">
+
+      <button class="menu-btn" onclick="toggleMenu(${comment.id})">
+       ⋮
+   </button>
+
+
+<div class="comment-actions" id="menu-${comment.id}">
+
+<button class="edit-btn"
+onclick='editComment(${comment.id}, ${JSON.stringify(comment.message)})'>
+Edit
+</button>
+
+
+<button class="delete-btn"
+onclick="deleteComment(${comment.id}, this)">
+Delete
+</button>
+
+</div>
+
+</div>
+
+` : ""
+
+}
 
 
         </div>
 
-        `;
+
+    </div>
 
 
-        await loadReplies(comment.id);
+    `;
 
-    }
+
+    // ADD THIS
+    countReplies(comment.id);
+
+     }
 
 }
-
 
 
 // ADD COMMENT
@@ -145,15 +209,13 @@ async function addComment(){
     .from("comments")
     .insert([
 
-        {
-
-            name:name,
-
-            message:message,
-
-            likes:0
-
-        }
+    {
+    name:name,
+    message:message,
+    likes:0,
+    user_id:myUserId,
+    edited:false
+    }
 
     ]);
 
@@ -187,36 +249,81 @@ async function addComment(){
 
 
 
+
+
+
 // LIKE COMMENT
 
-async function likeComment(id,currentLikes){
+async function likeComment(id){
+
+    console.log("LIKE CLICKED:", id);
 
 
-
-    const {error}=await client
+    const {data, error} = await client
     .from("comments")
-    .update({
-
-        likes: currentLikes + 1
-
-    })
-
-    .eq("id",id);
-
+    .select("likes")
+    .eq("id", id)
+    .single();
 
 
     if(error){
 
-        console.log("LIKE ERROR:",error);
-
+        console.log("GET LIKE ERROR:", error);
         return;
 
     }
 
 
+    let liked = likedComments.includes(id);
 
-    showComments();
+    let newLikes;
 
+
+    if(liked){
+
+        // REMOVE LIKE
+        newLikes = Math.max((data.likes || 0) - 1, 0);
+
+        likedComments = likedComments.filter(
+            item => item !== id
+        );
+
+
+    }else{
+
+        // ADD LIKE
+        newLikes = (data.likes || 0) + 1;
+
+        likedComments.push(id);
+
+    }
+
+
+    localStorage.setItem(
+        "likedComments",
+        JSON.stringify(likedComments)
+    );
+
+
+
+    const {error:updateError}=await client
+    .from("comments")
+    .update({
+        likes:newLikes
+    })
+    .eq("id",id);
+
+
+
+    if(updateError){
+
+    console.log("UPDATE LIKE ERROR:",updateError);
+    return;
+
+}
+
+
+await showComments();
 
 }
 
@@ -224,31 +331,56 @@ async function likeComment(id,currentLikes){
 
 
 
-
-
-
 // DELETE COMMENT
 
-async function deleteComment(id){
+async function deleteComment(id, button){
 
-
-    const {error}=await client
+    const {data,error}=await client
     .from("comments")
-    .delete()
-    .eq("id",id);
-
+    .select("*")
+    .eq("id",id)
+    .single();
 
 
     if(error){
-
         console.log(error);
+        return;
+    }
 
+
+    if(data.user_id !== myUserId){
+
+        alert("You can only delete your own comment");
         return;
 
     }
 
 
-    showComments();
+    let commentBox = button.closest(".comment-box");
+
+
+    commentBox.classList.add("delete-animation");
+
+
+    const {error:deleteError}=await client
+    .from("comments")
+    .delete()
+    .eq("id",id);
+
+
+    if(deleteError){
+
+        console.log(deleteError);
+        return;
+
+    }
+
+
+    setTimeout(()=>{
+
+        showComments();
+
+    },400);
 
 
 }
@@ -264,10 +396,39 @@ async function deleteComment(id){
 async function editComment(id,oldMessage){
 
 
+    const {data,error}=await client
+    .from("comments")
+    .select("*")
+    .eq("id",id)
+    .single();
+
+
+
+    if(error){
+
+        console.log(error);
+
+        return;
+
+    }
+
+
+
+    if(data.user_id !== myUserId){
+
+        alert("You can only edit your own comment");
+
+        return;
+
+    }
+
+
+
     let newMessage = prompt(
         "Edit your comment:",
         oldMessage
     );
+
 
 
     if(newMessage==null || newMessage.trim()==""){
@@ -278,20 +439,27 @@ async function editComment(id,oldMessage){
 
 
 
-    await client
-    .from("comments")
-    .update({
+    const {error: updateError}=await client
+.from("comments")
+.update({
+    message:newMessage,
+    edited:true,
+    edited_at:new Date()
+})
+.eq("id",id);
 
-        message:newMessage
 
-    })
+if(updateError){
 
-    .eq("id",id);
+    console.log("EDIT ERROR:",updateError);
+
+    return;
+
+}
 
 
 
     showComments();
-
 
 }
 
@@ -316,13 +484,16 @@ async function replyComment(commentId){
 
     const {data,error}=await client
     .from("replies")
-    .insert([
-        {
-            comment_id: commentId,
-            name: name,
-            message: message
-        }
-    ])
+.insert([
+{
+    comment_id: commentId,
+    name:name,
+    message:message,
+    user_id:myUserId,
+    likes:0,
+    edited:false
+}
+])
     .select();
 
 
@@ -342,7 +513,65 @@ async function replyComment(commentId){
 
 
 
+async function likeReply(id){
 
+
+const {data}=await client
+.from("replies")
+.select("likes")
+.eq("id",id)
+.single();
+
+
+
+let liked = likedReplies.includes(id);
+
+
+let newLikes;
+
+
+
+if(liked){
+
+newLikes=Math.max((data.likes||0)-1,0);
+
+likedReplies=likedReplies.filter(
+item=>item!==id
+);
+
+
+}else{
+
+
+newLikes=(data.likes||0)+1;
+
+likedReplies.push(id);
+
+
+}
+
+
+
+localStorage.setItem(
+"likedReplies",
+JSON.stringify(likedReplies)
+);
+
+
+
+await client
+.from("replies")
+.update({
+likes:newLikes
+})
+.eq("id",id);
+
+
+
+showComments();
+
+
+}
 
 
 
@@ -363,8 +592,11 @@ async function loadReplies(commentId){
 
 
 console.log("REPLIES FOUND:", data);
-console.log("REPLY ERROR:", error);
 
+if(error){
+    console.log("REPLY ERROR MESSAGE:", error.message);
+    console.log("REPLY FULL ERROR:", error);
+}
 
 
     if(error){
@@ -398,16 +630,47 @@ console.log("REPLY ERROR:", error);
 
         box.innerHTML += `
 
-        <div class="reply-box">
+<div class="reply-box">
 
-        <h4>↳ ${reply.name}</h4>
+<h4>↳ ${reply.name}</h4>
 
-        <p>${reply.message}</p>
+<p>
+${reply.message}
+${reply.edited ? " • Edited" : ""}
+</p>
 
 
-        </div>
+<button onclick="likeReply(${reply.id})">
+❤️ ${reply.likes ?? 0}
+</button>
 
-        `;
+
+${
+reply.user_id === myUserId ?
+
+`
+
+<button 
+onclick='editReply(${reply.id}, ${JSON.stringify(reply.message)})'>
+Edit
+</button>
+
+
+<button 
+onclick="deleteReply(${reply.id})">
+Delete
+</button>
+
+`
+
+:""
+
+}
+
+
+</div>
+
+`;
 
 
     });
@@ -418,6 +681,232 @@ console.log("REPLY ERROR:", error);
 
 
 
+
+
+async function toggleReplies(commentId){
+
+    let box=document.getElementById(
+        "replies-"+commentId
+    );
+
+
+    if(box.classList.contains("hidden")){
+
+
+        box.classList.remove("hidden");
+
+
+        setTimeout(()=>{
+
+            box.classList.add("show");
+
+        },10);
+
+
+        await loadReplies(commentId);
+
+
+    }else{
+
+
+        box.classList.remove("show");
+
+
+        setTimeout(()=>{
+
+            box.classList.add("hidden");
+
+        },300);
+
+
+    }
+
+}
+
+
+async function countReplies(commentId){
+
+    const {data,error} = await client
+    .from("replies")
+    .select("id")
+    .eq("comment_id", commentId);
+
+
+    if(error){
+        console.log(error);
+        return;
+    }
+
+
+    let button = document.getElementById(
+        "reply-count-" + commentId
+    );
+
+
+    if(!button){
+        return;
+    }
+
+
+    if(data.length === 0){
+
+        button.innerHTML = "💬 Reply";
+
+    }else{
+
+        button.innerHTML =
+        "💬 " + data.length + 
+        (data.length === 1 ? " reply" : " replies");
+
+    }
+
+}
+
+function timeAgo(date){
+
+    let seconds = Math.floor(
+        (new Date() - new Date(date)) / 1000
+    );
+
+
+    if(seconds < 60){
+        return "Just now";
+    }
+
+
+    let minutes = Math.floor(seconds / 60);
+
+    if(minutes < 60){
+        return minutes + " minute" + 
+        (minutes > 1 ? "s" : "") + " ago";
+    }
+
+
+    let hours = Math.floor(minutes / 60);
+
+    if(hours < 24){
+        return hours + " hour" +
+        (hours > 1 ? "s" : "") + " ago";
+    }
+
+
+    let days = Math.floor(hours / 24);
+
+    return days + " day" +
+    (days > 1 ? "s" : "") + " ago";
+
+}
+
+function toggleMenu(id){
+
+    let menu = document.getElementById(
+        "menu-" + id
+    );
+
+
+    menu.classList.toggle("show-menu");
+
+}
+
+
+
+async function editReply(id,oldMessage){
+
+const {data,error}=await client
+.from("replies")
+.select("*")
+.eq("id",id)
+.single();
+
+
+if(error){
+console.log(error);
+return;
+}
+
+
+if(data.user_id !== myUserId){
+
+alert("You can only edit your own reply");
+
+return;
+
+}
+
+
+
+let newMessage=prompt(
+"Edit reply:",
+oldMessage
+);
+
+
+if(!newMessage)return;
+
+
+await client
+.from("replies")
+.update({
+message:newMessage,
+edited:true,
+edited_at:new Date()
+})
+.eq("id",id);
+
+
+showComments();
+
+}
+
+async function deleteReply(id){
+
+
+const {data,error}=await client
+.from("replies")
+.select("*")
+.eq("id",id)
+.single();
+
+
+
+if(error){
+console.log(error);
+return;
+}
+
+
+
+if(data.user_id !== myUserId){
+
+alert("You can only delete your own reply");
+
+return;
+
+}
+
+
+
+let confirmDelete=confirm(
+"Delete this reply?"
+);
+
+
+
+if(!confirmDelete)return;
+
+
+
+await client
+.from("replies")
+.delete()
+.eq("id",id);
+
+
+
+showComments();
+
+
+}
 
 
 
