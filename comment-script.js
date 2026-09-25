@@ -944,6 +944,60 @@ showComments();
 }
 
 
+function enterWebsite(){
+
+    document.getElementById("warningBox").style.display="none";
+
+}
+
+
+// REALTIME COMMENT NOTIFICATION
+
+client
+.channel("comments-channel")
+.on(
+    "postgres_changes",
+    {
+        event:"INSERT",
+        schema:"public",
+        table:"comments"
+    },
+    (payload)=>{
+
+        console.log("New comment:", payload.new);
+
+
+        showComments();
+
+
+        notify(
+"💬 New comment from " 
++ payload.new.name
+);
+
+    }
+)
+.subscribe();
+
+
+function notify(text){
+
+let box=document.getElementById("notification");
+
+box.innerHTML=text;
+
+box.style.display="block";
+
+
+setTimeout(()=>{
+
+box.style.display="none";
+
+},3000);
+
+}
+
+
 
 // START WEBSITE
 
