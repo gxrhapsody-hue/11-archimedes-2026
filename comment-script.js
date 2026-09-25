@@ -515,8 +515,10 @@ async function replyComment(commentId){
 
 async function likeReply(id){
 
+console.log("REPLY LIKE CLICKED:", id);
 
-const {data}=await client
+
+const {data,error}=await client
 .from("replies")
 .select("likes")
 .eq("id",id)
@@ -524,42 +526,23 @@ const {data}=await client
 
 
 
-let liked = likedReplies.includes(id);
+if(error){
 
-
-let newLikes;
-
-
-
-if(liked){
-
-newLikes=Math.max((data.likes||0)-1,0);
-
-likedReplies=likedReplies.filter(
-item=>item!==id
-);
-
-
-}else{
-
-
-newLikes=(data.likes||0)+1;
-
-likedReplies.push(id);
-
+console.log("GET REPLY LIKE ERROR:", error);
+return;
 
 }
 
 
-
-localStorage.setItem(
-"likedReplies",
-JSON.stringify(likedReplies)
-);
+console.log("CURRENT REPLY LIKES:", data.likes);
 
 
 
-await client
+let newLikes = (data.likes || 0) + 1;
+
+
+
+const {error:updateError}=await client
 .from("replies")
 .update({
 likes:newLikes
@@ -568,7 +551,19 @@ likes:newLikes
 
 
 
-showComments();
+if(updateError){
+
+console.log("UPDATE REPLY LIKE ERROR:", updateError);
+return;
+
+}
+
+
+
+console.log("NEW REPLY LIKES:", newLikes);
+
+
+await showComments();
 
 
 }
