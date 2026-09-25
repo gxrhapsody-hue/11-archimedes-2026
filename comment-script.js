@@ -29,6 +29,8 @@ console.log("Supabase connected");
 
 let likedComments = JSON.parse(localStorage.getItem("likedComments")) || [];
 
+let likedReplies = JSON.parse(localStorage.getItem("likedReplies")) || [];
+
 // SHOW COMMENTS
 
 async function showComments(){
@@ -80,7 +82,7 @@ async function showComments(){
 
         <small>
         ${timeAgo(comment.created_at)}
-        ${comment.edited ? " • 🧏 Edited" : ""}
+        ${comment.edited ? " •  Edited" : ""}
         </small>
 
     </div>
@@ -273,7 +275,8 @@ async function likeComment(id){
 
     }
 
-
+    
+  
     let liked = likedComments.includes(id);
 
     let newLikes;
@@ -515,7 +518,7 @@ async function replyComment(commentId){
 
 async function likeReply(id){
 
-console.log("REPLY LIKE CLICKED:", id);
+console.log("REPLY LIKE:", id);
 
 
 const {data,error}=await client
@@ -525,27 +528,64 @@ const {data,error}=await client
 .single();
 
 
-
 if(error){
 
-console.log("GET REPLY LIKE ERROR:", error);
+console.log(error);
 return;
 
 }
 
 
-console.log("CURRENT REPLY LIKES:", data.likes);
+
+let liked = likedReplies.includes(id);
+
+let newLikes;
 
 
 
-let newLikes = (data.likes || 0) + 1;
+if(liked){
+
+    // REMOVE LIKE
+
+    newLikes = Math.max(
+        (data.likes || 0) - 1,
+        0
+    );
+
+
+    likedReplies = likedReplies.filter(
+        item => item !== id
+    );
+
+
+}else{
+
+
+    // ADD LIKE
+
+    newLikes = (data.likes || 0) + 1;
+
+
+    likedReplies.push(id);
+
+
+}
+
+
+
+localStorage.setItem(
+    "likedReplies",
+    JSON.stringify(likedReplies)
+);
 
 
 
 const {error:updateError}=await client
 .from("replies")
 .update({
+
 likes:newLikes
+
 })
 .eq("id",id);
 
@@ -553,17 +593,14 @@ likes:newLikes
 
 if(updateError){
 
-console.log("UPDATE REPLY LIKE ERROR:", updateError);
+console.log(updateError);
 return;
 
 }
 
 
 
-console.log("NEW REPLY LIKES:", newLikes);
-
-
-await showComments();
+showComments();
 
 
 }
@@ -636,7 +673,10 @@ ${reply.edited ? " • Edited" : ""}
 
 
 <button onclick="likeReply(${reply.id})">
-❤️ ${reply.likes ?? 0}
+
+${likedReplies.includes(reply.id) ? "❤️" : "🤍"} 
+${reply.likes ?? 0}
+
 </button>
 
 
