@@ -80,7 +80,7 @@ async function showComments(){
 
         <small>
         ${timeAgo(comment.created_at)}
-        ${comment.edited ? " • ✏️ Edited" : ""}
+        ${comment.edited ? " • 🧏 Edited" : ""}
         </small>
 
     </div>
@@ -94,14 +94,14 @@ async function showComments(){
         
 
         <button onclick="replyComment(${comment.id})">
-        💬 Reply
+         Reply
         </button>
 
 
         <button 
         id="reply-count-${comment.id}" 
         onclick="toggleReplies(${comment.id})">
-        💬 0 replies
+        🔥 0 replies
         </button>
 
 
@@ -745,12 +745,12 @@ async function countReplies(commentId){
 
     if(data.length === 0){
 
-        button.innerHTML = "💬 Reply";
+        button.innerHTML = " Reply";
 
     }else{
 
         button.innerHTML =
-        "💬 " + data.length + 
+        "🔥 " + data.length + 
         (data.length === 1 ? " reply" : " replies");
 
     }
