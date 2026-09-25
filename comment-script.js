@@ -970,10 +970,10 @@ client
         showComments();
 
 
-        notify(
-"💬 New comment from " 
-+ payload.new.name
-);
+        alert(
+        "💬 New comment from " 
+        + payload.new.name
+        );
 
     }
 )
