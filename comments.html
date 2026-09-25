@@ -9,12 +9,44 @@ Comment Your Thoughts 💬
 </h1>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-<link rel="stylesheet" href="style.css"> 
-  
+
+<link rel="stylesheet" href="style.css">
+
+
 <p>
 Share your favorite memories and messages for 11-Archimedes.
 </p>
+
+
+<!-- LOGIN AREA START -->
+
+<div class="login-box">
+
+<input id="email" placeholder="Email">
+
+<input 
+id="password" 
+type="password" 
+placeholder="Password">
+
+
+<button onclick="signup()">
+Sign Up
+</button>
+
+
+<button onclick="login()">
+Login
+</button>
+
+
+<button onclick="logout()">
+Logout
+</button>
+
+</div>
+
+<!-- LOGIN AREA END -->
 
 
 
@@ -30,11 +62,13 @@ Share your favorite memories and messages for 11-Archimedes.
 Anonymous
 </option>
 
+
 <option value="real">
 Use my name
 </option>
 
 </select>
+
 
 
 <input 
@@ -43,9 +77,11 @@ id="name"
 placeholder="Enter your name">
 
 
+
 <textarea
 id="message"
 placeholder="Write a comment..."></textarea>
+
 
 
 <button onclick="addComment()">
@@ -61,7 +97,7 @@ Post
 Comments
 </h2>
 
-  
+
 <div id="comments">
 
 <!-- Comments appear here -->
@@ -74,9 +110,11 @@ Comments
 
 </div>
 
-  
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="comment-script.js"></script>
-  
+
+
 </body>
