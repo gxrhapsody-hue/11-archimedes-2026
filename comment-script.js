@@ -43,7 +43,8 @@ async function showComments(){
     const {data, error} = await client
     .from("comments")
     .select("*")
-    .order("created_at",{ascending:false});
+.order("pinned",{ascending:false})
+.order("created_at",{ascending:false});
 
 
     if(error){
@@ -78,7 +79,10 @@ async function showComments(){
 
     <div>
 
-        <h3>${comment.name}</h3>
+        <h3>
+${comment.pinned ? "📌 " : ""}
+${comment.name}
+</h3>
 
         <small>
         ${timeAgo(comment.created_at)}
@@ -142,6 +146,12 @@ Edit
 <button class="delete-btn"
 onclick="deleteComment(${comment.id}, this)">
 Delete
+</button>
+
+
+<button 
+onclick="pinComment(${comment.id}, ${comment.pinned})">
+${comment.pinned ? "Unpin" : "Pin"}
 </button>
 
 </div>
@@ -483,8 +493,7 @@ async function replyComment(commentId){
     if(!name || !message){
         return;
     }
-
-
+  
     const {data,error}=await client
     .from("replies")
 .insert([
@@ -499,6 +508,27 @@ async function replyComment(commentId){
 ])
     .select();
 
+ const {data:commentOwner,error:ownerError}=await client
+.from("comments")
+.select("user_id")
+.eq("id",commentId)
+.single();
+
+
+if(!ownerError && commentOwner.user_id !== myUserId){
+
+await client
+.from("notifications")
+.insert([
+{
+user_id: commentOwner.user_id,
+message:name + " replied to your comment",
+read:false
+}
+]);
+
+}
+  
 
     console.log("REPLY ADDED:", data);
     console.log("REPLY ERROR:", error);
@@ -970,10 +1000,15 @@ client
         showComments();
 
 
-        alert(
-        "💬 New comment from " 
-        + payload.new.name
-        );
+        if(payload.new.user_id !== myUserId){
+
+alert(
+"💬 New comment from " + payload.new.name
+);
+
+}
+
+showComments();
 
     }
 )
@@ -998,7 +1033,113 @@ box.style.display="none";
 }
 
 
+async function pinComment(id, currentStatus){
+
+
+let newStatus = !currentStatus;
+
+
+const {error} = await client
+.from("comments")
+.update({
+
+pinned:newStatus
+
+})
+.eq("id",id);
+
+
+
+if(error){
+
+console.log(error);
+
+return;
+
+}
+
+
+showComments();
+
+
+}
+
+
+async function loadNotifications(){
+
+const box=document.getElementById("notifications");
+
+
+const {data,error}=await client
+.from("notifications")
+.select("*")
+.eq("user_id",myUserId)
+.order("created_at",{ascending:false});
+
+
+if(error){
+console.log(error);
+return;
+}
+
+
+box.innerHTML="";
+
+
+data.forEach(n=>{
+
+box.innerHTML += `
+
+<div class="notification">
+
+${n.message}
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+client
+.channel("notifications")
+.on(
+"postgres_changes",
+{
+event:"INSERT",
+schema:"public",
+table:"notifications"
+},
+(payload)=>{
+
+if(payload.new.user_id === myUserId){
+
+alert(payload.new.message);
+
+loadNotifications();
+
+}
+
+}
+)
+.subscribe();
+
+
+async function enableNotifications(){
+
+await OneSignal.User.PushSubscription.optIn();
+
+alert("Notifications enabled!");
+
+}
+
+
+
 
 // START WEBSITE
 
 showComments();
+loadNotifications();
