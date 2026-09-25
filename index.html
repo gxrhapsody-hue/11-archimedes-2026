@@ -10,10 +10,39 @@
   
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
+
   
 
 <body>
+  
+<!-- WARNING POPUP -->
 
+<div id="warningBox">
+
+    <div class="warning-content">
+
+        <h2>⚠️ IMPORTANT NOTICE</h2>
+
+        <p>
+        This website was created for educational purposes only.
+        <br><br>
+        Please respect the privacy of everyone featured on this website.
+        Do not share, copy, or distribute photos, personal information, or this link without permission.
+        <br><br>
+        Any unauthorized use or distribution may be recorded and may result in consequences.
+        <br><br>
+        By continuing, you agree to use this website responsibly.
+        </p>
+
+        <button onclick="enterWebsite()">
+        I Understand
+        </button>
+
+    </div>
+
+</div>
+
+  
 <div class="container">
 
 <h1>Welcome To<br>
@@ -57,6 +86,18 @@ style="top:70%; left:80%;">
 src="images/photo3.jpeg"
 style="top:40%; left:85%;">
 
+
+<script>
+
+function enterWebsite(){
+
+    document.getElementById("warningBox").style.display="none";
+
+}
+
+</script>
+
+  
   
 </body>  
   
